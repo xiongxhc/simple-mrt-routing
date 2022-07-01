@@ -1,5 +1,7 @@
 
 from collections import defaultdict
+import re
+from utils.utils import stationsPerLocation, locationPerStation, previousCurrentNext
 
 class Graph:
   
@@ -11,16 +13,26 @@ class Graph:
     def addEdge(self, u, v):
         self.graph[u].append(v)
 
+    # Return adjacency list {'NS2': ['NS1', 'NS3'],...}
+    def createMrtSingleLineAdjacencyList(self, station):
+      for previous, current, next in previousCurrentNext(station):
+        if not previous:
+          self.addEdge(current, next)
+        elif not next:
+          self.addEdge(current, previous)
+        elif re.split('(\d+)', current)[0] == re.split('(\d+)', previous)[0]:
+          self.addEdge(current, previous)
+          self.addEdge(current, next)
 
     # Breadth first search shortest path to determine route
-    def BFS_SP(graph, start, destination):
+    def BFS_SP(self, start, destination):
         visited = []
         queue = [[start]]
 
-        if start not in graph:
+        if start not in self.graph:
           print("\nInvalid [Start] Station!\n")
           return
-        elif destination not in graph:
+        elif destination not in self.graph:
           print("\nInvalid [Destination] Station!\n")
           return
         
@@ -33,7 +45,7 @@ class Graph:
             station = path[-1]
             
             if station not in visited:
-                neighbours = graph[station]
+                neighbours = self.graph[station]
                 
                 for neighbour in neighbours:
                     new_path = list(path)
@@ -51,13 +63,9 @@ class Graph:
         return
     
 if __name__ == "__main__":
-     
-    graph = {"X": ["Y", "A", "Z"],
-            "Y": ["X", "Y"],
-            "Z": ["X", "S", "D"],
-            "W": ["Y"],
-            "A": ["Y", "D", "Z"],
-            "S": ["Z", "D"],
-            "D": ["Z", "K"]}
-
-    Graph.BFS_SP(graph, input("Starting Station: "), input("Destination Station: "))
+  
+  station = locationPerStation()
+  location = stationsPerLocation()
+  graph = Graph(len(station))
+  graph.createMrtSingleLineAdjacencyList(station)
+  graph.BFS_SP(input("Starting Station: "), input("Destination Station: "))
