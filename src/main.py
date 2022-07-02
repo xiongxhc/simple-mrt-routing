@@ -1,7 +1,5 @@
-
 from collections import defaultdict
-import re
-from utils.utils import stationsPerLocation, locationPerStation, previousCurrentNext
+from utils.utils import stations_per_location, location_per_station, previous_current_next, compare_split_string
 
 class Graph:
   
@@ -10,19 +8,28 @@ class Graph:
         self.graph = defaultdict(list)
   
     # Add an edge to graph
-    def addEdge(self, u, v):
+    def add_edge(self, u, v):
         self.graph[u].append(v)
 
     # Return adjacency list {'NS2': ['NS1', 'NS3'],...}
-    def createMrtSingleLineAdjacencyList(self, station):
-      for previous, current, next in previousCurrentNext(station):
+    def create_mrt_single_line_adjacency_list(self, station):
+      for previous, current, next in previous_current_next(station):
         if not previous:
-          self.addEdge(current, next)
+          self.add_edge(current, next)
         elif not next:
-          self.addEdge(current, previous)
-        elif re.split('(\d+)', current)[0] == re.split('(\d+)', previous)[0]:
-          self.addEdge(current, previous)
-          self.addEdge(current, next)
+          self.add_edge(current, previous)
+        elif compare_split_string(current, previous):
+          self.add_edge(current, previous)
+          self.add_edge(current, next)
+    
+    # Return adjacency list {'NS2': ['NS1', 'NS3'],...}
+    def create_mrt_connected_station_adjacency_list(self, location):
+      for stations in location:
+        if len(location[stations]) > 1:
+          self.create_mrt_single_line_adjacency_list(location[stations])
+        
+    def print_mrt_adjacency_list(self):
+        print(self.graph)
 
     # Breadth first search shortest path to determine route
     def BFS_SP(self, start, destination):
@@ -64,8 +71,10 @@ class Graph:
     
 if __name__ == "__main__":
   
-  station = locationPerStation()
-  location = stationsPerLocation()
+  station = location_per_station()
+  location = stations_per_location()
   graph = Graph(len(station))
-  graph.createMrtSingleLineAdjacencyList(station)
+  graph.create_mrt_single_line_adjacency_list(station)
+  graph.create_mrt_connected_station_adjacency_list(location)
+  graph.print_mrt_adjacency_list()
   graph.BFS_SP(input("Starting Station: "), input("Destination Station: "))
