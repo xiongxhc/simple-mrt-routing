@@ -1,7 +1,13 @@
 from collections import defaultdict
-from utils.utils import stations_per_location, location_per_station, previous_current_next, compare_split_string
+from utils import (
+  stations_per_location, 
+  location_per_station, 
+  previous_current_next, 
+  compare_split_string, 
+  print_output
+)
 
-class Graph:
+class MRT_GRAPH:
   
     def __init__(self, vertices):
         self.V = vertices
@@ -11,22 +17,34 @@ class Graph:
     def add_edge(self, u, v):
         self.graph[u].append(v)
 
-    # Return adjacency list {'NS2': ['NS1', 'NS3'],...}
-    def create_mrt_single_line_adjacency_list(self, station):
-      for previous, current, next in previous_current_next(station):
+    # Return adjacency list {'NS1': ['NS2'],...}
+    def create_mrt_single_line_adjacency_list(self, stations):
+      for previous, current, next in previous_current_next(stations):
         if not previous:
           self.add_edge(current, next)
-        elif not next:
+          continue
+        if not next:
           self.add_edge(current, previous)
-        elif compare_split_string(current, previous):
+          continue
+        if compare_split_string(current, previous):
           self.add_edge(current, previous)
+        if compare_split_string(current, next):
           self.add_edge(current, next)
-    
-    # Return adjacency list {'NS2': ['NS1', 'NS3'],...}
-    def create_mrt_connected_station_adjacency_list(self, location):
-      for stations in location:
-        if len(location[stations]) > 1:
-          self.create_mrt_single_line_adjacency_list(location[stations])
+            
+    # Return adjacency list {'NS1': ['NS2', 'EW24'],...}
+    def create_mrt_connected_station_adjacency_list(self, locations):
+      for stations in locations:
+        if len(locations[stations]) > 1:
+          for previous, current, next in previous_current_next(locations[stations]):
+            if not previous:
+              self.add_edge(current, next)
+              continue
+            if not next:
+              self.add_edge(current, previous)
+              continue
+            self.add_edge(current, previous)
+            self.add_edge(current, next)
+              
         
     def print_mrt_adjacency_list(self):
         print(self.graph)
@@ -60,10 +78,8 @@ class Graph:
                     queue.append(new_path)
                     
                     if neighbour == destination:
-                        print("\nTravel from", start, "to", destination)
-                        print("Stations travelled:", len(new_path))
-                        print("Route: (", *new_path, ")\n")
-                        return
+                      print_output(start, destination, new_path)
+                      return
                 visited.append(station)
  
         print("\n NO PATH BETWEEN STATION (NOT POSSIBLE)\n")
@@ -71,10 +87,10 @@ class Graph:
     
 if __name__ == "__main__":
   
-  station = location_per_station()
-  location = stations_per_location()
-  graph = Graph(len(station))
-  graph.create_mrt_single_line_adjacency_list(station)
-  graph.create_mrt_connected_station_adjacency_list(location)
+  stations = location_per_station()
+  locations = stations_per_location()
+  graph = MRT_GRAPH(len(stations))
+  graph.create_mrt_single_line_adjacency_list(stations)
+  graph.create_mrt_connected_station_adjacency_list(locations)
   graph.print_mrt_adjacency_list()
-  graph.BFS_SP(input("Starting Station: "), input("Destination Station: "))
+  graph.BFS_SP(input("\nStarting Station: "), input("Destination Station: "))
