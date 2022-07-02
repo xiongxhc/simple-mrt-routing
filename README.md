@@ -11,3 +11,13 @@ A simple routing service for Singapore MRT
 ```sh
 python3 src/main.py
 ```
+
+### Inputs
+
+Input station code for the starting and destination station.
+
+For example:
+```sh
+Starting Station: DT30
+Destination Station: NS23
+```

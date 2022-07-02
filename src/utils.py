@@ -2,7 +2,7 @@ import re
 import csv
 from itertools import tee, islice, chain
 
-# Returns {'Station Name': ['NS1', 'EW24'],....}
+# Returns {'Jurong East': ['NS1', 'EW24'],....}
 def stations_per_location():
   dic = dict()
   with open("src/data/station_map.csv", "r") as file:
@@ -31,5 +31,22 @@ def previous_current_next(iterable):
     next = chain(islice(next, 1, None), [None])
     return zip(prev, curr, next)
 
+def get_string_from_string_number(str):
+  return re.split('(\d+)', str)[0]
+
 def compare_split_string(a, b):
-  return re.split('(\d+)', a)[0] == re.split('(\d+)', b)[0]
+  return get_string_from_string_number(a) == get_string_from_string_number(b)
+
+def get_station_name(station):
+  return location_per_station()[station]
+
+def translate_route_to_sentence(routes):
+  sentences = []
+  for previous, current, next in previous_current_next(routes):
+    if not next:
+        return sentences
+    else:
+      if compare_split_string(current, next):
+        sentences.append("Take " +  get_string_from_string_number(current) + " line from " + get_station_name(current)+ " to " + get_station_name(next))
+      else:
+        sentences.append("Change from " + get_string_from_string_number(current) + " line to " + get_string_from_string_number(next) + " line")
