@@ -92,5 +92,4 @@ if __name__ == "__main__":
   graph = MRT_GRAPH(len(stations))
   graph.create_mrt_single_line_adjacency_list(stations)
   graph.create_mrt_connected_station_adjacency_list(locations)
-  graph.print_mrt_adjacency_list()
   graph.BFS_SP(input("\nStarting Station: "), input("Destination Station: "))
