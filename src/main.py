@@ -47,7 +47,7 @@ class MRT_GRAPH:
               
         
     def print_mrt_adjacency_list(self):
-        print(self.graph)
+      print(self.graph)
 
     # Breadth first search shortest path to determine route
     def BFS_SP(self, start, destination):
@@ -62,25 +62,25 @@ class MRT_GRAPH:
           return
         
         if start == destination:
-            print("\nSame Station\n")
-            return
+          print("\nSame Station\n")
+          return
         
         while queue:
-            path = queue.pop(0)
-            station = path[-1]
+          path = queue.pop(0)
+          station = path[-1]
+          
+          if station not in visited:
+              neighbours = self.graph[station]
+              
+          for neighbour in neighbours:
+            new_path = list(path)
+            new_path.append(neighbour)
+            queue.append(new_path)
             
-            if station not in visited:
-                neighbours = self.graph[station]
-                
-                for neighbour in neighbours:
-                    new_path = list(path)
-                    new_path.append(neighbour)
-                    queue.append(new_path)
-                    
-                    if neighbour == destination:
-                      print_output(start, destination, new_path)
-                      return
-                visited.append(station)
+            if neighbour == destination:
+              print_output(start, destination, new_path)
+              return
+          visited.append(station)
  
         print("\n NO PATH BETWEEN STATION (NOT POSSIBLE)\n")
         return
